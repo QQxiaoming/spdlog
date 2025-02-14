@@ -37,9 +37,13 @@ class udp_sink : public spdlog::sinks::base_sink<Mutex> {
 public:
     // host can be hostname or ip address
     explicit udp_sink(udp_sink_config sink_config)
-        : client_{sink_config.server_host, sink_config.server_port} {}
+        : client_{sink_config.server_host, sink_config.server_port}
+          , config_{std::move(sink_config)} { }
 
     ~udp_sink() override = default;
+    const udp_sink_config& config(){
+        return config_;
+    }
 
 protected:
     void sink_it_(const spdlog::details::log_msg &msg) override {
@@ -50,6 +54,7 @@ protected:
 
     void flush_() override {}
     details::udp_client client_;
+    udp_sink_config config_;
 };
 
 using udp_sink_mt = udp_sink<std::mutex>;
